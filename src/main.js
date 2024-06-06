@@ -30,7 +30,8 @@ const handleSubmit = async (event) => {
       position: 'topCenter'
     });
   }
-
+  page = 1;
+  totalHits = 0;
   loader.classList.remove("hidden");
   pageButton.classList.add("hidden");
   galleryEl.innerHTML = '';
@@ -38,7 +39,7 @@ const handleSubmit = async (event) => {
   try {
     const response = await getPosts(query, page);
     const { hits, totalHits: newTotalHits } = response.data;
-    totalHits = newTotalHits;  
+    totalHits = newTotalHits;
 
     if (hits.length > 0) {
       galleryEl.innerHTML = renderImg(hits);
@@ -52,8 +53,8 @@ const handleSubmit = async (event) => {
           enableKeyboard: true,
           docClose: true
         });
-      } 
         lightbox.refresh();
+      }
       
 
       if (totalHits > 15) {
@@ -79,6 +80,7 @@ const handleSubmit = async (event) => {
 formEl.addEventListener('submit', handleSubmit);
 
 const pageMore = async () => {
+  pageButton.disabled = true; 
   page += 1;
   loader.classList.remove("hidden");
 
@@ -105,18 +107,22 @@ const pageMore = async () => {
           title: 'No more info',
           message: "We're sorry, but you've reached the end of search results."
         });
+      } else {
+        pageButton.disabled = false; 
       }
     } else {
       iziToast.info({
         title: 'No more results',
         message: "No additional images found."
       });
+      pageButton.disabled = false; 
     }
   } catch (error) {
     iziToast.error({
       title: "Error",
       message: `Something went wrong. ${error.message}`
     });
+    pageButton.disabled = false; 
   } finally {
     loader.classList.add('hidden');
   }
